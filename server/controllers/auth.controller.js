@@ -99,3 +99,12 @@ export const updateProfile = async (req,res) => {
         res.status(500).json({message: "Server hatası!"})
     }
 }
+
+export const checkAuth = (req, res) => {
+    try {
+        res.status(200).json(req.user);
+    } catch (error) {
+        console.log("checkAuth controller'ında hata!", error.message);
+        res.status(500).json({ message: "Server hatası!" });
+  }
+}
