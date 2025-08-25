@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs"
 import User from "../models/user.model.js";
 import { generateToken } from "../lib/utils.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const signup = async (req, res) => {
     try {
@@ -77,3 +78,24 @@ export const logout = (req, res) => {
   }
 };
 
+export const updateProfile = async (req,res) => {
+    try {
+        const {profilePic} = req.body;
+        const userId = req.user._id;
+
+        if(!profilePic) { return res.status(400).json({message: "Profil fotoğrafı zorunludur!"})};
+
+        const uploadResponse = await cloudinary.uploader.upload(profilePic);
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { profilePic: uploadResponse.secure_url },
+            { new: true }
+        ).select("-password");
+
+        res.status(200).json(updatedUser);
+        
+    } catch (error) {
+        console.error("Profil güncellemede hata:",error);
+        res.status(500).json({message: "Server hatası!"})
+    }
+}
